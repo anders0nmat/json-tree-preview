@@ -34,7 +34,7 @@ class Node {
 	_type = null
 	_value = null
 	_tags = []
-	_attributes = {}
+	_attributes = []
 
 	_children = []
 
@@ -102,7 +102,7 @@ class Node {
 
 	get tags() {
 		if (this._dom_object) {
-			return Array.from(this._head.querySelectorAll("#tags > span")).map(e => e.textContent)
+			return Array.from(this._head.querySelectorAll("#tags > .node-tag span")).map(e => e.textContent)
 		}
 		else {
 			return this._tags
@@ -115,9 +115,7 @@ class Node {
 			tags_container.textContent = "" // Delete all children
 
 			newValue.forEach(e => {
-				tags_container.appendChild(createHtmlStructure({
-					name: "span", classes: ["node-tag"], innerText: e
-				}))
+				tags_container.appendChild(createHtmlStructure(Node.createTagStructure(e)))
 			})
 
 			this.updateDom()
@@ -130,11 +128,7 @@ class Node {
 	get attributes() {
 		if (this._dom_object) {
 			return Array.from(this._head.querySelectorAll("#attributes-table .attr-key"))
-				.map(e => [e.textContent, e.nextElementSibling.textContent])
-				.reduce((prev, e) => {
-					prev[e[0]] = e[1]
-					return prev
-				}, {})
+				.map(e => {return {key: e.textContent, value: e.nextElementSibling.textContent}})
 		}
 		else {
 			return this._attributes
@@ -183,7 +177,7 @@ class Node {
 				this.updateDom()
 			}
 			else {
-				this._attributes[name] = value
+				this._attributes.append({key: name, value: value})
 			}
 		}
 	}
@@ -210,8 +204,8 @@ class Node {
 			this.updateDom()
 		}
 		else {
-			this._tags.splice(this._tags.find(name) ?? this._tags.length, 1)
-			delete this._attributes[name]
+			this._tags = this._tags.filter(e => e != name)
+			this._attributes = this._attributes.filter(e => e.key != name)
 		}
 	}
 
@@ -275,12 +269,12 @@ class Node {
 	createDom() {
 		if (this._dom_object) {return this._dom_object}
 
-		let attribute_list = Object.entries(this._attributes).sort(sort_by_key).map(e => Node.createAttributeStructure(e[0], e[1]))
+		let attribute_list = this._attributes.sort((a, b) => sort_by_key(a.key, b.key)).map(e => Node.createAttributeStructure(e.key, e.value))
 		let tag_list = this._tags.sort(sort_by_key).map(Node.createTagStructure)
 		let children_list = this._children.map(e => e.createDom())
 
 		let status_classes = []
-		if (Object.keys(this.attributes).length == 0) {status_classes.push("no-attributes")}
+		if (this.attributes.length == 0) {status_classes.push("no-attributes")}
 		if (!this.value) {status_classes.push("no-value")}
 		if (this.tags.length == 0) {status_classes.push("no-tags")}
 
@@ -338,7 +332,7 @@ class Node {
 		if (!this._dom_object) {return}
 
 		let head = this._head
-		head.classList.toggle("no-attributes", Object.keys(this.attributes).length == 0)
+		head.classList.toggle("no-attributes", this.attributes.length == 0)
 		head.classList.toggle("no-value", !this.value)
 		head.classList.toggle("no-tags", this.tags.length == 0)
 	}
@@ -512,7 +506,7 @@ class Node {
 				innerText: "close",
 				events: { onclick: Node.ondeletetag }
 			},
-			{name: "#text", innerText: name}
+			{name: "span", innerText: name}
 		]}
 	}
 
@@ -550,7 +544,7 @@ class Node {
 				result._tags.push(key)
 			}
 			else {
-				result._attributes[key] = value
+				result._attributes.push({key: key, value: value})
 			}
 		}
 
@@ -584,10 +578,7 @@ class Node {
 			let attributes = Array.from(tree.attributes).map(e => [e.name, e.value])
 
 			result._attributes = attributes.filter(e => e[1] != "")
-				.reduce((prev, e) => {
-					prev[e[0]] = e[1]
-					return prev
-				}, {})
+				.map(e => {return {key: e[0], value: e[1]}})
 
 			result._tags = attributes.filter(([k, v]) => v == "").map(e => e[0])
 
@@ -605,6 +596,148 @@ class Node {
 			}
 			result._children = children
 		}
+		return result
+	}
+
+	toObject() {
+		let object = this.type == Node.TreeNodeType.unnamedArray ? [] : {}
+		let result = {object: object, conflicts: []}
+		
+		if (this._dom_object && this._dom_object.parentElement.matches("#container") && this.name) {
+			result.conflicts.push({at: this, error: "name on root", for: this.name})
+		}
+
+		this.attributes.forEach(({key, value}) => {
+			if (!isNaN(Number(value))) {value = Number(value)}
+			if (value === "null") {value = null}
+			if (value === "true") {value = true}
+			if (value === "false") {value = false}
+
+			if (this.type == Node.TreeNodeType.unnamedArray) {
+				let index = Number(key)
+				if (index == NaN) {
+					result.conflicts.push({at: this, error: "non-index attribute", for: key})
+				}
+				else {
+					if (object.length <= index) { object.length = index + 1 }
+					if (object[index] !== undefined) {
+						result.conflicts.push({at: this, error: "duplicate index", for: index})
+					}
+					else {
+						object[index] = value
+					}
+				}
+			}
+			else {
+				if (object[key] !== undefined) {
+					result.conflicts.push({at: this, error: "duplicate name", for: key})
+				}
+				else {
+					object[key] = value
+				}
+			}
+		})
+
+		this.tags.forEach((key) => {
+			if (this.type == Node.TreeNodeType.unnamedArray) {
+				let index = Number(key)
+				if (index == NaN) {
+					result.conflicts.push({at: this, error: "non-index tag", for: key})
+				}
+				else {
+					if (object.length <= index) { object.length = index + 1 }
+					if (object[index] !== undefined) {
+						result.conflicts.push({at: this, error: "duplicate index", for: index})
+					}
+					else {
+						object[index] = ""
+					}
+				}
+			}
+			else {
+				if (object[key] !== undefined) {
+					result.conflicts.push({at: this, error: "duplicate name", for: key})
+				}
+				else {
+					object[key] = ""
+				}
+			}
+		})
+
+		if (this.value) {
+			result.conflicts.push({at: this, error: "existing value", for: this.value})
+		}
+
+		this.children.forEach(e => {
+			if (this.type == Node.TreeNodeType.unnamedArray) {
+				let index = Number(e.name)
+				if (index == NaN) {
+					result.conflicts.push({at: this, error: "non-index child", for: e.name})
+				}
+				else {
+					if (object.length <= index) { object.length = index + 1 }
+					if (object[index] !== undefined) {
+						result.conflicts.push({at: this, error: "duplicate index", for: index})
+					}
+					else {
+						let {object: child, conflicts} = e.toObject() 
+						object[index] = child
+						result.conflicts.concat(conflicts)
+					}
+				}
+			}
+			else {
+				if (object[e.name] !== undefined) {
+					result.conflicts.push({at: this, error: "duplicate name", for: e.name})
+				}
+				else {
+					let {object: child, conflicts} = e.toObject() 
+					object[e.name] = child
+					result.conflicts.concat(conflicts)
+				}
+			}
+		})
+
+		return result
+	}
+
+	toTree(tree = undefined, node = undefined) {
+		if (tree === undefined) {
+			tree = document.implementation.createDocument(null, this.name)
+			node = tree.activeElement
+		}
+		else {
+			node = node.appendChild(tree.createElement(this.name))
+		}
+		let result = {object: tree, conflicts: []}
+
+		this.attributes.forEach(({key, value}) => {
+			if (node.hasAttribute(key)) {
+				result.conflicts.push({at: this, error: "duplicate name", for: key})
+			}
+			else {
+				node.setAttribute(key, value)
+			}
+		})
+
+		this.tags.forEach((key) => {
+			if (node.hasAttribute(key)) {
+				result.conflicts.push({at: this, error: "duplicate name", for: key})
+			}
+			else {
+				node.setAttribute(key, "")
+			}
+		})
+
+		this.children.forEach(e => {
+			let {_, conflicts} = e.toTree(tree, node) 
+			result.conflicts.concat(conflicts)			
+		})
+
+		if (this.value) {
+			node.appendChild(tree.createTextNode(this.value))
+		}
+
 		return result
 	}
 }

@@ -391,6 +391,15 @@ function drop_handler(ev) {
 	selectFile(file)
 }
 
+function save_file(data, type, name) {
+	let blob = new Blob([data], {type: type})
+	let download = document.createElement("a")
+	download.href = URL.createObjectURL(blob)
+	download.download = name
+	download.click()
+	download.remove()
+}
+
 /* Variables */
 let container = document.getElementById("container")
 let settingsContainer = document.getElementById("settings")
@@ -430,4 +439,32 @@ Node.ondeleteattribute = ev => {
 	node.updateDom()
 }
 
+document.getElementById("save-to-file").onclick = _ => {
+	let node = Node.fromDom(document.querySelector("#container .node"))
+
+	if (!node) {return}
+
+	let file_type = node.type == Node.TreeNodeType.namedObject ? "xml" : "json"
+	let type = `application/${file_type}`
+
+	let data = ""
+
+	if (file_type == "xml") {
+		let serializer = new XMLSerializer()
+		let {object: tree, conflicts} = node.toTree()
+		data = serializer.serializeToString(tree)
+		if (conflicts.length != 0) {
+			alert("errors occured!")
+		}
+	}
+	else if (file_type == "json") {
+		let {object, conflicts} = node.toObject()
+		data = JSON.stringify(object)
+		if (conflicts.length != 0) {
+			alert("errors occured!")
+		}
+	}
+
+	save_file(data, type, "tree." + file_type)
+}
 
