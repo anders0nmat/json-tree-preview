@@ -1,4 +1,4 @@
-:root, .light-theme {
+:root, body[theme="light"] {
 	--col-text: rgb(0, 0, 0);
 	--col-text-hint: rgba(0, 0, 0, 0.2);
 	--col-text-tags: rgba(0, 0, 0, 0.9);
@@ -10,18 +10,17 @@
 
 	--col-text-attr-key: rgb(196, 117, 0);
 	--col-text-attr-value: rgb(128, 128, 128);
-
-	
 	--col-text-attr-value-null: rgb(155, 78, 255);
 	--col-text-attr-value-number: rgb(80, 139, 80);
 	--col-text-attr-value-bool: rgb(65, 125, 255);
 
-	--col-border-node-items: rgba(128, 128, 128, 0.1);
-	--col-border-attr: rgba(128, 128, 128, 0.1);
-	--col-border-attr-keyvalue: rgba(128, 128, 128, 0);
-	--col-border-tags: rgba(128, 128, 128, 0.3);
+	--border-node: none;
+	--border-node-items: thin solid rgba(128, 128, 128, 0.1);
+	--border-attr: thin solid rgba(128, 128, 128, 0.1);
+	--border-attr-keyvalue: none;
+	--border-tags: thin solid rgba(128, 128, 128, 0.3);
 
-	--col-border-textfield-focus: rgb(34, 104, 255);
+	--border-textfield-focus: thin solid rgb(34, 104, 255);
 
 	--col-bg-page: rgb(229, 229, 229);
 	
@@ -43,10 +42,12 @@
 	--col-bg-drag-drop: rgb(0, 0, 0, 0.7);
 	
 	--col-scroll-settings: rgb(230, 230, 230);
-	
-	--col-shadow-node: rgba(0, 0, 0, 0.10);
-	--col-shadow-attr: rgba(0, 0, 0, 0.1);
-	--col-shadow-settings: rgba(0, 0, 0, 0.25);
+
+	--shadow-node: 2px 2px 16px 2px rgba(0, 0, 0, 0.10);
+	--shadow-attr: 
+		0  5px 5px -5px rgba(0, 0, 0, 0.1) inset,
+		0 -5px 5px -5px rgba(0, 0, 0, 0.1) inset;
+	--shadow-settings: 2px 2px 12px 0 rgba(0, 0, 0, 0.25);
 
 	--col-line-node-connect: rgb(192, 192, 192);
 }
@@ -62,22 +63,19 @@
 		--col-text-filter-adjacent: rgb(0, 135, 224);
 		--col-text-radio-inactive: rgba(220, 220, 220, 0.5);
 
+		--col-text-attr-key: rgb(200, 150, 75);
+		--col-text-attr-value: rgb(170, 170, 170);
 		--col-text-attr-value-null: rgb(155, 78, 255);
 		--col-text-attr-value-number: rgb(153, 216, 153);
 		--col-text-attr-value-bool: rgb(65, 125, 255);
 
-		--col-text-attr-key: rgb(200, 150, 75);
-		--col-text-attr-value: rgb(170, 170, 170);
+		--border-node: none;
+		--border-node-items: thin solid rgba(128, 128, 128, 0.2);
+		--border-attr: thin solid rgba(128, 128, 128, 0.25);
+		--border-attr-keyvalue: none;
+		--border-tags: thin solid rgba(128, 128, 128, 0.5);
 
-		--col-border-node-items: rgba(128, 128, 128, 0.2);
-		--col-border-attr: rgba(128, 128, 128, 0.25);
-		--col-border-attr-keyvalue: rgba(128, 128, 128, 0);
-		--col-border-tags: rgba(128, 128, 128, 0.5);
-
-		--col-border-radio: rgba(128, 128, 128, 0.5);
-		--col-border-radio-separator: rgba(128, 128, 128, 0.4);
-
-		--col-border-textfield-focus: rgb(34, 104, 255);
+		--border-textfield-focus: thin solid rgb(34, 104, 255);
 
 		--col-bg-page: rgb(24, 24, 24);
 
@@ -100,65 +98,120 @@
 		
 		--col-scroll-settings: rgb(64, 64, 64);
 		
-		--col-shadow-node: rgba(0, 0, 0, 0.25);
-		--col-shadow-attr: rgba(0, 0, 0, 0.15);
-		--col-shadow-settings: rgba(0, 0, 0, 0.25);
+		--shadow-node: 2px 2px 16px 2px rgba(0, 0, 0, 0.25);
+		--shadow-attr: 
+			0  5px 5px -5px rgba(0, 0, 0, 0.15) inset,
+			0 -5px 5px -5px rgba(0, 0, 0, 0.15) inset;
+		--shadow-settings: 2px 2px 12px 0 rgba(0, 0, 0, 0.25);
 
 		--col-line-node-connect: rgb(64, 64, 64);
 	}
 }
 
-.dark-theme {
+body[theme="dark"] {
 	--col-text: rgb(220, 220, 220);
-	--col-text-hint: rgba(220, 220, 220, 0.2);
-	--col-text-tags: rgba(220, 220, 220, 0.9);
-	--col-text-missing-value: rgba(220, 220, 220, 0.5);
+		--col-text-hint: rgba(220, 220, 220, 0.2);
+		--col-text-tags: rgba(220, 220, 220, 0.9);
+		--col-text-missing-value: rgba(220, 220, 220, 0.5);
+		--col-text-drag-drop: rgb(220, 220, 220);
+		--col-text-filter-active: rgb(219, 143, 0);
+		--col-text-filter-adjacent: rgb(0, 135, 224);
+		--col-text-radio-inactive: rgba(220, 220, 220, 0.5);
+
+		--col-text-attr-key: rgb(200, 150, 75);
+		--col-text-attr-value: rgb(170, 170, 170);
+		--col-text-attr-value-null: rgb(155, 78, 255);
+		--col-text-attr-value-number: rgb(153, 216, 153);
+		--col-text-attr-value-bool: rgb(65, 125, 255);
+
+		--border-node: none;
+		--border-node-items: thin solid rgba(128, 128, 128, 0.2);
+		--border-attr: thin solid rgba(128, 128, 128, 0.25);
+		--border-attr-keyvalue: none;
+		--border-tags: thin solid rgba(128, 128, 128, 0.5);
+
+		--border-textfield-focus: thin solid rgb(34, 104, 255);
+
+		--col-bg-page: rgb(24, 24, 24);
+
+		--col-bg-radio-hover: rgba(128, 128, 128, 0.1);
+		--col-bg-radio-checked: rgba(128, 128, 128, 0.25);
+
+		--col-bg-add-attr-hover: var(--col-bg-node);
+
+		--col-bg-noscript: rgba(255, 0, 0, 0.5);
+
+		--col-bg-filter: rgb(48, 48, 48);
+		--col-bg-settings: rgba(48, 48, 48, 0.95);
+		--col-bg-settings-header: rgb(56, 56, 56);
+		
+		--col-bg-node: rgb(48, 48, 48);
+		--col-bg-attr: rgb(40, 40, 40);
+		--col-bg-tags: rgba(0, 0, 0, 0.15);
+
+		--col-bg-drag-drop: rgb(0, 0, 0, 0.5);
+		
+		--col-scroll-settings: rgb(64, 64, 64);
+		
+		--shadow-node: 2px 2px 16px 2px rgba(0, 0, 0, 0.25);
+		--shadow-attr: 
+			0  5px 5px -5px rgba(0, 0, 0, 0.15) inset,
+			0 -5px 5px -5px rgba(0, 0, 0, 0.15) inset;
+		--shadow-settings: 2px 2px 12px 0 rgba(0, 0, 0, 0.25);
+
+		--col-line-node-connect: rgb(64, 64, 64);
+}
+
+body[theme="print"] {
+	--col-text: rgb(0, 0, 0);
+	--col-text-hint: rgba(0, 0, 0, 0.2);
+	--col-text-tags: rgba(0, 0, 0, 0.9);
+	--col-text-missing-value: rgba(0, 0, 0, 0.5);
 	--col-text-drag-drop: rgb(220, 220, 220);
-	--col-text-filter-active: rgb(219, 143, 0);
+	--col-text-filter-active: rgb(209, 136, 0);
 	--col-text-filter-adjacent: rgb(0, 135, 224);
-	--col-text-radio-inactive: rgba(220, 220, 220, 0.5);
+	--col-text-radio-inactive: rgba(0, 0, 0, 0.35);
 
-	--col-text-attr-key: rgb(200, 150, 75);
-	--col-text-attr-value: rgb(170, 170, 170);
-
-	
+	--col-text-attr-key: rgb(196, 117, 0);
+	--col-text-attr-value: rgb(64, 64, 64);
 	--col-text-attr-value-null: rgb(155, 78, 255);
-	--col-text-attr-value-number: rgb(153, 216, 153);
+	--col-text-attr-value-number: rgb(80, 139, 80);
 	--col-text-attr-value-bool: rgb(65, 125, 255);
 
-	--col-border-node-items: rgba(128, 128, 128, 0.2);
-	--col-border-attr: rgba(128, 128, 128, 0.25);
-	--col-border-attr-keyvalue: rgba(128, 128, 128, 0);
-	--col-border-tags: rgba(128, 128, 128, 0.5);
+	--border-node: thin solid rgb(164, 164, 164);
+	--border-node-items: thin solid rgba(128, 128, 128, 0.2);
+	--border-attr: thin solid rgba(128, 128, 128, 0.1);
+	--border-attr-keyvalue: none;
+	--border-tags: thin solid rgba(128, 128, 128, 0.3);
 
-	--col-border-textfield-focus: rgb(34, 104, 255);
+	--border-textfield-focus: thin solid rgb(34, 104, 255);
 
-	--col-bg-page: rgb(24, 24, 24);
-
-	--col-bg-radio-hover: rgba(128, 128, 128, 0.1);
+	--col-bg-page: rgb(255, 255, 255);
+	
+	--col-bg-radio-hover: rgba(128, 128, 128, 0.05);
 	--col-bg-radio-checked: rgba(128, 128, 128, 0.25);
-
-	--col-bg-add-attr-hover: var(--col-bg-node);
-
-	--col-bg-noscript: rgba(255, 0, 0, 0.5);
-
-	--col-bg-filter: rgb(48, 48, 48);
-	--col-bg-settings: rgba(48, 48, 48, 0.95);
-	--col-bg-settings-header: rgb(56, 56, 56);
 	
-	--col-bg-node: rgb(48, 48, 48);
-	--col-bg-attr: rgb(40, 40, 40);
-	--col-bg-tags: rgba(0, 0, 0, 0.15);
-
-	--col-bg-drag-drop: rgb(0, 0, 0, 0.5);
+	--col-bg-add-attr-hover: rgba(128, 128, 128, 0.05);
 	
-	--col-scroll-settings: rgb(64, 64, 64);
-	
-	--col-shadow-node: rgba(0, 0, 0, 0.25);
-	--col-shadow-attr: rgba(0, 0, 0, 0.15);
-	--col-shadow-settings: rgba(0, 0, 0, 0.25);
+	--col-bg-noscript: rgba(255, 0, 0, 0.25);
 
-	--col-line-node-connect: rgb(64, 64, 64);
+	--col-bg-filter: rgb(248, 248, 248);
+	--col-bg-settings: rgba(248, 248, 248, 0.95);
+	--col-bg-settings-header: rgb(252, 252, 252);
+	
+	--col-bg-node: rgb(255, 255, 255);
+	--col-bg-attr: rgb(240, 240, 240);
+	--col-bg-tags: rgba(0, 0, 0, 0.05);
+
+	--col-bg-drag-drop: rgb(0, 0, 0, 0.7);
+	
+	--col-scroll-settings: rgb(230, 230, 230);
+
+	--shadow-node: none;
+	--shadow-attr: none;
+	--shadow-settings: 2px 2px 12px 0 rgba(0, 0, 0, 0.25);
+
+	--col-line-node-connect: rgb(128, 128, 128);
 }
 
 
@@ -262,7 +315,7 @@ body:not(.drag) > #drag-overlay {
 	overflow: hidden;
 
 	border-radius: 0.5em;
-	box-shadow: 2px 2px 12px 0 var(--col-shadow-settings);
+	box-shadow: var(--shadow-settings);
 
 	transform: translateX(calc(-100% - 2rem));
 	transition: transform 250ms cubic-bezier(.17,.84,.44,1);
@@ -326,7 +379,7 @@ body:not(.drag) > #drag-overlay {
 }
 
 #color-theme-toggle {
-	rotate: 45deg;
+	rotate: var(--rotation, 0);
 }
 
 #settings.show #settings-show {
@@ -387,7 +440,6 @@ label {
 }
 
 .custom-radiobutton > label > span {
-	/* border-right: thin solid var(--col-border-radio-separator); */
 	color: var(--col-text-radio-inactive);
 }
 
@@ -396,7 +448,6 @@ label {
 }
 
 .custom-radiobutton > label:last-of-type > span {
-	/* border-right: none; */
 	border-top-right-radius: 0.5em;
 	border-bottom-right-radius: 0.5em;
 }
@@ -418,6 +469,8 @@ label {
 	margin-inline: auto;
 	width: fit-content;
 	padding: 2rem;
+
+	--node-gap: 4rem;
 }
 
 .node {
@@ -434,20 +487,24 @@ label {
 	display: none;
 }
 
+.no-children > .node-children {
+	display: none;
+}
+
 .node-children {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: center;
 
 	position: relative;
-	padding-top: 4rem;
+	padding-top: var(--node-gap);
 
 	gap: 2rem;
 }
 
 #container.horizontal .node-children {
 	padding-top: 0;
-	padding-left: 4rem;
+	padding-left: var(--node-gap);
 	flex-flow: column nowrap;
 }
 
@@ -460,8 +517,9 @@ label {
 	gap: 0.25em;
 
 	border-radius: 0.5em;
+	border: var(--border-node);
 
-	box-shadow: 2px 2px 16px 2px var(--col-shadow-node);
+	box-shadow: var(--shadow-node);
 }
 
 .node-head > * {
@@ -500,7 +558,7 @@ label {
 }
 
 .node-head > * + * {
-	border-top: thin solid var(--col-border-node-items);
+	border-top: var(--border-node-items);
 }
 
 .node-head #title-name {
@@ -568,9 +626,7 @@ label {
 	background-color: var(--col-bg-attr);	
 	padding-block: 0.25em;
 
-	box-shadow: 
-		0 5px 5px -5px var(--col-shadow-attr) inset,
-		0 -5px 5px -5px var(--col-shadow-attr) inset;
+	box-shadow: var(--shadow-attr);
 }
 
 #attributes-table {
@@ -590,7 +646,7 @@ label {
 	vertical-align: top;
 	padding-right: 0.5em;
 
-	border-right: thin solid var(--col-border-attr-keyvalue);
+	border-right: var(--border-attr-keyvalue);
 
 	color: var(--col-text-attr-key);
 }
@@ -601,7 +657,7 @@ label {
 }
 
 #attributes-table tr + tr > td {
-	border-top: thin solid var(--col-border-attr);
+	border-top: var(--border-attr);
 }
 
 
@@ -640,7 +696,7 @@ td.attr-value.attr-value-bool {
 	color: var(--col-text-tags);
 
 	background-color: var(--col-bg-tags);
-	border: thin solid var(--col-border-tags);
+	border: var(--border-tags);
 
 	border-radius: 2em;
 }
@@ -786,7 +842,7 @@ td.attr-value.attr-value-bool {
 	width: 20ch;
 	background-color: transparent;
 	color: inherit;
-	border: thin solid var(--col-border-attr);
+	border: var(--border-attr);
 	padding: 0.25em 0.5em;
 }
 
@@ -794,7 +850,7 @@ td.attr-value.attr-value-bool {
 .attr-text-field:focus-within,
 #title .name-text-field:focus-within,
 #value .value-text-field:focus-within {
-	outline: thin solid var(--col-border-textfield-focus);
+	outline: var(--border-textfield-focus);
 }
 
 #attributes-table .edit-button .icon-button,

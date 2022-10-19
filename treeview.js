@@ -217,7 +217,7 @@ function loadJsonObject(obj) {
 }
 
 function loadXmlObject(obj) {
-	loadNodeObject(Node.fromTree(obj.activeElement))
+	loadNodeObject(Node.fromTree(obj.documentElement))
 }
 
 function loadJsonString(jsonString) {
@@ -309,29 +309,26 @@ function nodeSettingClick(ev) {
 function toggle_color_theme() {
 	let btn = document.getElementById("color-theme-toggle")
 
-	let currentState =
-		document.body.classList.contains("light-theme") +
-		2 * document.body.classList.contains("dark-theme")
-	// 0 = UserDefault
-	// 1 = Light
-	// 2 = Dark
-	// 3 = Illegal, default to 0
-
-	switch (currentState) {
-		case 0:
-			document.body.classList.add("light-theme")
-			document.body.classList.remove("dark-theme")
+	switch (document.body.getAttribute("theme")) {
+		case "": // To Light
+			document.body.setAttribute("theme", "light")
 			btn.textContent = "brightness_7"
+			btn.style.setProperty("--rotation", "0")
 			break
-		case 1:
-			document.body.classList.remove("light-theme")
-			document.body.classList.add("dark-theme")
+		case "light": // To Print
+			document.body.setAttribute("theme", "print")
+			btn.textContent = "brightness_6"
+			btn.style.setProperty("--rotation", "0")
+			break
+		case "print": // To Dark
+			document.body.setAttribute("theme", "dark")
 			btn.textContent = "brightness_3"
+			btn.style.setProperty("--rotation", "45deg")
 			break
-		case 2:
-			document.body.classList.remove("light-theme")
-			document.body.classList.remove("dark-theme")
+		case "dark": // To Default
+			document.body.setAttribute("theme", "")
 			btn.textContent = "brightness_4"
+			btn.style.setProperty("--rotation", "45deg")
 			break
 	}
 }
@@ -468,3 +465,9 @@ document.getElementById("save-to-file").onclick = _ => {
 	save_file(data, type, "tree." + file_type)
 }
 
+let slider = document.getElementById("node-gap")
+slider.onchange = _ => {
+	container.style.setProperty("--node-gap", `${slider.value}rem`)
+	Node.createLines()
+}
+slider.oninput = slider.onchange

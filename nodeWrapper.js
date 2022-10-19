@@ -277,6 +277,9 @@ class Node {
 		if (this.attributes.length == 0) {status_classes.push("no-attributes")}
 		if (!this.value) {status_classes.push("no-value")}
 		if (this.tags.length == 0) {status_classes.push("no-tags")}
+		// if (this.children.length == 0) {status_classes.push("no-children")}
+		let node_classes = []
+		if (this.children.length == 0) {node_classes.push("no-children")}
 
 		let action_buttons = [
 			{name: "button", "data-action": "hide-self", innerText: "Hide"},
@@ -286,7 +289,7 @@ class Node {
 			{name: "button", "data-action": "show-children", innerText: "Show Children"},
 		]
 
-		let node = createHtmlStructure({name: "div", classes: ["node"], children: [
+		let node = createHtmlStructure({name: "div", classes: ["node", ...node_classes], children: [
 			{name: "div", classes: ["node-head", ...status_classes], children: [
 				{name: "div", id: "title", children: [
 					{name: "button", classes: ["edit-button", "material-icons", "icon-button"], innerText: "edit"},
@@ -335,6 +338,7 @@ class Node {
 		head.classList.toggle("no-attributes", this.attributes.length == 0)
 		head.classList.toggle("no-value", !this.value)
 		head.classList.toggle("no-tags", this.tags.length == 0)
+		this._dom_object.classList.toggle("no-children", this.children.length == 0)
 	}
 
 	static makeLine(offset1, length1, offset2, length2, mode) {
