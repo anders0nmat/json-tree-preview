@@ -1,4 +1,92 @@
 
+function $dom(obj, options = undefined) {
+	if (typeof obj === "string" || obj instanceof String) {
+		// Assume object of structure "name#id?(.class)*"
+		let [nameAndId, ...classes] = obj.split(".")
+		let [name, id] = nameAndId.split("#")
+
+		obj = {
+			...options,
+			name: name != "" ? name : "div",
+			id: id,
+			class: classes.length != 0 ? classes : undefined,
+		}
+	}
+
+	return $dom.fromObj(obj)
+}
+
+$dom.fromObj = (obj) => {
+	const dom_object = {
+		name: "",
+		id: "",
+		class: "class1 class2 ..." || ["", "", "..."],
+		children: [Element, /*dom_object*/, "text", null], // null is just ignored or optionally raises an error
+		attributes: {},
+		events: {},
+
+		capture: {}, // Used to capture the created element for later use
+	
+		/* Any other property is concidered an attribute with lower priority than attributes declared in the attributes property */
+	}
+
+	if (!obj.name) return null
+
+	let node = document.createElement(obj.name)
+	if (obj.capture) obj.capture.element = node // for later use of caller
+
+	if (obj.id) node.id = obj.id
+
+	if (obj.class) {
+		if (typeof obj.class === "string" || obj.class instanceof String) {
+			obj.class = obj.class.split(" ")
+		}
+		if (Array.isArray(obj.class)) {
+			obj.class.forEach(e => node.classList.add(e))
+		}
+	}
+
+	if (obj.events) { Object.entries(obj.events).forEach(e => node[e[0]] = e[1]) }
+
+	Object.entries(obj).forEach(e => {
+		if (dom_object[e[0]] !== undefined) return
+		node.setAttribute(e[0], String(e[1]))
+	})
+
+	if (obj.attributes) { Object.entries(obj.attributes).forEach(e => node.setAttribute(e[0], String(e[1]))) }
+
+	if (obj.children) {
+		if (!Array.isArray(obj.children)) {
+			obj.children = [obj.children]
+		}
+		obj.children.forEach(e => {
+			if (e === null) {
+				if ($dom.errorOnNull) {
+					console.error("null children encountered", node)
+				}
+			}
+			else if (e.ownerDocument === document) {
+				// Already an element
+				node.appendChild(e)
+			}
+			else if (typeof e === "string" || e instanceof String) {
+				// Literal Text
+				node.appendChild(document.createTextNode(e))
+			}
+			else if (typeof e === 'object' && e !== null) {
+				node.appendChild($dom(e))
+			}
+		})
+	}
+
+	return node
+}
+
+$dom.div = (obj = {}) => $dom({...obj, name: "div"})
+$dom.span = (obj = {}) => $dom({...obj, name: "span"})
+
+$dom.errorOnNull = true
+
 function createHtmlStructure(obj) {
 	const default_obj = {
 		classes: [],
@@ -60,27 +148,51 @@ function loadNodeObject(node) {
 	// Add Tag Buttons & New Tag text fields
 	document.querySelectorAll("#add-tag-button").forEach(e => {
 		e.onclick = _ => {
-			let textfield = createHtmlStructure({
-				name: "input", type: "text", classes: ["node-tag", "tag-text-field"]
-			})
-			textfield.onblur = _ => {
-				let node = Node.fromDom(textfield.closest(".node"))
-				if (!node) {return}
+			// let textfield = createHtmlStructure({
+			// 	name: "input", type: "text", classes: ["node-tag", "tag-text-field"]
+			// })
+			// textfield.onblur = _ => {
+			// 	let node = Node.fromDom(textfield.closest(".node"))
+			// 	if (!node) {return}
 
-				if (textfield.value != "") { node.addAttribute(textfield.value) }
+			// 	if (textfield.value != "") { node.addAttribute(textfield.value) }
 
-				textfield.remove()
-			}
-			textfield.onkeydown = ev => {
-				if (ev.key == "Escape") {
-					textfield.remove()
-				}
-				else if (ev.code == "Enter") {
-					textfield.blur() // Applies tag through onblur event
-				}
-			}
-			e.closest("#tags").appendChild(textfield)
-			textfield.focus()
+			// 	textfield.remove()
+			// }
+			// textfield.onkeydown = ev => {
+			// 	if (ev.key == "Escape") {
+			// 		textfield.remove()
+			// 	}
+			// 	else if (ev.code == "Enter") {
+			// 		textfield.blur() // Applies tag through onblur event
+			// 	}
+			// }
+			// e.closest("#tags").appendChild(textfield)
+			// textfield.focus()
+
+			let textfield = {}
+			e.closest("#tags").appendChild(
+				$dom({name: "input", type: "text", class: ["node-tag", "tag-text-field"], capture: textfield,
+					events: {
+						onblur: ev => {
+							let node = Node.fromDom(ev.target.closest(".node"))
+							if (!node) {return}
+			
+							if (ev.target.value != "") { node.addAttribute(ev.target.value) }
+			
+							ev.target.remove()
+						},
+						onkeydown: ev => {
+							if (ev.key == "Escape") {
+								ev.target.remove()
+							}
+							else if (ev.code == "Enter") {
+								ev.target.blur() // Applies tag through onblur event
+							}
+						}
+					}
+				}))
+			textfield.element.focus()
 		}
 	})
 
@@ -89,83 +201,128 @@ function loadNodeObject(node) {
 		e.onclick = ev => {
 			let table = ev.target.closest(".attribute-container").querySelector("#attributes-table")
 
-			let tableRow = createHtmlStructure({name: "tr", children: [{name: "td"}]})
-			table.appendChild(tableRow)
+			// let tableRow = createHtmlStructure({name: "tr", children: [{name: "td"}]})
+			// table.appendChild(tableRow)
 
-			let keyDataField = createHtmlStructure({name: "td"})
-			let valueDataField = createHtmlStructure({name: "td"})
-			tableRow.appendChild(keyDataField)
-			tableRow.appendChild(valueDataField)
-			let keyField = createHtmlStructure({name: "input", type: "text", classes: ["attr-text-field"]})
-			let valueField = createHtmlStructure({name: "input", type: "text", classes: ["attr-text-field"]})
-			keyDataField.appendChild(keyField)
-			valueDataField.appendChild(valueField)
+			// let keyDataField = createHtmlStructure({name: "td"})
+			// let valueDataField = createHtmlStructure({name: "td"})
+			// tableRow.appendChild(keyDataField)
+			// tableRow.appendChild(valueDataField)
+			// let keyField = createHtmlStructure({name: "input", type: "text", classes: ["attr-text-field"]})
+			// let valueField = createHtmlStructure({name: "input", type: "text", classes: ["attr-text-field"]})
+			// keyDataField.appendChild(keyField)
+			// valueDataField.appendChild(valueField)
 
-			keyField.onblur = ev => {
-				// Focus was given to value, do nothing
-				if (valueField.isSameNode(ev.relatedTarget)) {return}
+			// keyField.onblur = ev => {
+			// 	// Focus was given to value, do nothing
+			// 	if (valueField.isSameNode(ev.relatedTarget)) {return}
 
-				let node = Node.fromDom(keyField.closest(".node"))
+			// 	let node = Node.fromDom(keyField.closest(".node"))
 
-				if (keyField.value != "") { node.addAttribute(keyField.value, valueField.value) }
+			// 	if (keyField.value != "") { node.addAttribute(keyField.value, valueField.value) }
 
-				tableRow.remove()
-			}
-			keyField.onkeydown = ev => {
-				if (ev.key == "Escape") {
-					tableRow.remove()
-				}
-				else if (ev.code == "Enter") {
-					valueField.focus()
-				}
-			}
+			// 	tableRow.remove()
+			// }
+			// keyField.onkeydown = ev => {
+			// 	if (ev.key == "Escape") {
+			// 		tableRow.remove()
+			// 	}
+			// 	else if (ev.code == "Enter") {
+			// 		valueField.focus()
+			// 	}
+			// }
 
-			valueField.onblur = ev => {
-				// Focus was given to key, do nothing
-				if (keyField.isSameNode(ev.relatedTarget)) {return}
+			// valueField.onblur = ev => {
+			// 	// Focus was given to key, do nothing
+			// 	if (keyField.isSameNode(ev.relatedTarget)) {return}
 
-				let node = Node.fromDom(valueField.closest(".node"))
+			// 	let node = Node.fromDom(valueField.closest(".node"))
 
-				if (keyField.value != "") { node.addAttribute(keyField.value, valueField.value) }
+			// 	if (keyField.value != "") { node.addAttribute(keyField.value, valueField.value) }
 
-				tableRow.remove()
-			}
-			valueField.onkeydown = ev => {
-				if (ev.key == "Escape") {
-					tableRow.remove()
-				}
-				else if (ev.code == "Enter") {
-					valueField.blur()
-				}
-			}
+			// 	tableRow.remove()
+			// }
+			// valueField.onkeydown = ev => {
+			// 	if (ev.key == "Escape") {
+			// 		tableRow.remove()
+			// 	}
+			// 	else if (ev.code == "Enter") {
+			// 		valueField.blur()
+			// 	}
+			// }
 
-			keyField.focus()
+			let row = {}, keyField = {}, valueField = {}
+			table.appendChild($dom(
+				{name: "tr", capture: row, children: [
+					{name: "td", children: {name: "input", type: "text", class: "attr-text-field", capture: keyField,
+						events: {
+							onblur: ev => {
+								// Focus was given to value, do nothing
+								if (valueField.element.isSameNode(ev.relatedTarget)) {return}
+								let node = Node.fromDom(ev.target.closest(".node"))
+								if (ev.target.value != "") { node.addAttribute(keyField.element.value, valueField.element.value) }
+								row.element.remove()
+							},
+
+							onkeydown: ev => {
+								if (ev.key == "Escape") { row.element.remove() }
+								else if (ev.code == "Enter") { valueField.element.focus() }
+							}
+						}}},
+					{name: "td", children: {name: "input", type: "text", class: "attr-text-field", capture: valueField,
+						events: {
+							onblur: ev => {
+								// Focus was given to key, do nothing
+								if (keyField.element.isSameNode(ev.relatedTarget)) {return}
+								let node = Node.fromDom(valueField.element.closest(".node"))
+								if (keyField.element.value != "") { node.addAttribute(keyField.element.value, valueField.element.value) }
+								row.element.remove()
+							},
+
+							onkeydown: ev => {
+								if (ev.key == "Escape") { row.element.remove() }
+								else if (ev.code == "Enter") { valueField.element.blur() }
+							}
+						}}}
+				]}))
+
+			keyField.element.focus()
 		}
 	})
 
 	document.querySelectorAll("#title .edit-button").forEach(e => {
 		e.onclick = ev => {
 			let textnode = ev.target.closest(".node").querySelector("#title-name")
-
 			let currValue = textnode.textContent
 
-			let edit_field = createHtmlStructure({
-				name: "input", type: "text", value: currValue, classes: ["name-text-field"],
+			// let edit_field = createHtmlStructure({
+			// 	name: "input", type: "text", value: currValue, classes: ["name-text-field"],
+			// 	events: {
+			// 		onblur: ev => {
+			// 			ev.target.replaceWith(createHtmlStructure({
+			// 				name: "span", id: "title-name", innerText: ev.target.value
+			// 			}))
+			// 		},
+			// 		onkeydown: ev => {
+			// 			if (ev.key == "Escape") {
+			// 				ev.target.replaceWith(createHtmlStructure({
+			// 					name: "span", id: "title-name", innerText: currValue
+			// 				}))
+			// 			}
+			// 			else if (ev.code == "Enter") {
+			// 				ev.target.blur() // Applies tag through onblur event
+			// 			}
+			// 		}
+			// 	}
+			// })
+			let edit_field = $dom({name: "input", type: "text", value: currValue, class: "name-text-field",
 				events: {
 					onblur: ev => {
-						ev.target.replaceWith(createHtmlStructure({
-							name: "span", id: "title-name", innerText: ev.target.value
-						}))
+						ev.target.replaceWith($dom.span({id: "title-name", children: ev.target.value}))
 					},
 					onkeydown: ev => {
-						if (ev.key == "Escape") {
-							ev.target.replaceWith(createHtmlStructure({
-								name: "span", id: "title-name", innerText: currValue
-							}))
-						}
-						else if (ev.code == "Enter") {
-							ev.target.blur() // Applies tag through onblur event
-						}
+						if (ev.key == "Escape") { ev.target.replaceWith($dom.span({id: "title-name", children: currValue})) }
+						else if (ev.code == "Enter") { ev.target.blur() } // Applies tag through onblur event
 					}
 				}
 			})
@@ -182,25 +339,38 @@ function loadNodeObject(node) {
 
 			let currValue = textnode.textContent
 
-			let edit_field = createHtmlStructure({
-				name: "input", type: "text", value: currValue, classes: ["value-text-field"],
+			// let edit_field = createHtmlStructure({
+			// 	name: "input", type: "text", value: currValue, classes: ["value-text-field"],
+			// 	events: {
+			// 		onblur: ev => {
+			// 			let node = Node.fromDom(ev.target.closest(".node"))
+			// 			ev.target.replaceWith(createHtmlStructure({
+			// 				name: "span", id: "value-name", innerText: ev.target.value
+			// 			}))
+			// 			node.updateDom()
+			// 		},
+			// 		onkeydown: ev => {
+			// 			if (ev.key == "Escape") {
+			// 				ev.target.replaceWith(createHtmlStructure({
+			// 					name: "span", id: "value-name", innerText: currValue
+			// 				}))
+			// 			}
+			// 			else if (ev.code == "Enter") {
+			// 				ev.target.blur() // Applies tag through onblur event
+			// 			}
+			// 		}
+			// 	}
+			// })
+			let edit_field = $dom({name: "input", type: "text", value: currValue, class: "value-text-field",
 				events: {
 					onblur: ev => {
 						let node = Node.fromDom(ev.target.closest(".node"))
-						ev.target.replaceWith(createHtmlStructure({
-							name: "span", id: "value-name", innerText: ev.target.value
-						}))
+						ev.target.replaceWith($dom.span({id: "value-name", children: ev.target.value}))
 						node.updateDom()
 					},
 					onkeydown: ev => {
-						if (ev.key == "Escape") {
-							ev.target.replaceWith(createHtmlStructure({
-								name: "span", id: "value-name", innerText: currValue
-							}))
-						}
-						else if (ev.code == "Enter") {
-							ev.target.blur() // Applies tag through onblur event
-						}
+						if (ev.key == "Escape") { ev.target.replaceWith($dom.span({id: "value-name", children: currValue})) }
+						else if (ev.code == "Enter") { ev.target.blur() } // Applies tag through onblur event
 					}
 				}
 			})
@@ -390,11 +560,12 @@ function drop_handler(ev) {
 
 function save_file(data, type, name) {
 	let blob = new Blob([data], {type: type})
-	let download = document.createElement("a")
+	let download = document.getElementById("download-link")
+	let prevUrl = download.getAttribute("href")
+	if (prevUrl != "") { URL.revokeObjectURL(prevUrl)}
 	download.href = URL.createObjectURL(blob)
 	download.download = name
 	download.click()
-	download.remove()
 }
 
 /* Variables */

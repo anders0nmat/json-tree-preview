@@ -52,47 +52,26 @@ class Node {
 	}
 
 	set name(newValue) {
-		if (this._dom_object) {
-			this._head.querySelector("#title-name").textContent = newValue
-		}
-		else {
-			this._name = newValue
-		}
+		if (this._dom_object) { this._head.querySelector("#title-name").textContent = newValue }
+		else { this._name = newValue }
 	}
 
 	get type() {
 		return this._head?.querySelector("#title-type").textContent ?? this._type
-		if (this._dom_object) {
-			return this._head.querySelector("#title-type").textContent
-		}
-		else {
-			return this._type
-		}
 	}
 
 	set type(newValue) {
-		if (this._dom_object) {
-			this._head.querySelector("#title-tyle").textContent = newValue
-		}
-		else {
-			this._type = newValue
-		}
+		if (this._dom_object) { this._head.querySelector("#title-tyle").textContent = newValue }
+		else { this._type = newValue }
 	}
 
 	get value() {
 		return this._head?.querySelector("#value-name").textContent ?? this._value
-		if (this._dom_object) {
-			return this._head.querySelector("#value-name").textContent
-		}
-		else {
-			return this._value
-		}
 	}
 
 	set value(newValue) {
 		if (this._dom_object) {
 			this._head.querySelector("#value-name").textContent = newValue
-
 			this.updateDom()
 		}
 		else {
@@ -142,9 +121,13 @@ class Node {
 			Object.entries(newValue)
 				.sort((a, b) => sort_by_key(a[0], b[0]))
 				.forEach(([k, v]) => {
-					table.appendChild(createHtmlStructure({name: "tr", children: [
-						{name: "td", classes: ["attr-key"], innerText: k},
-						{name: "td", classes: ["attr-value"], innerText: v},
+					// table.appendChild(createHtmlStructure({name: "tr", children: [
+					// 	{name: "td", classes: ["attr-key"], innerText: k},
+					// 	{name: "td", classes: ["attr-value"], innerText: v},
+					// ]}))
+					table.appendChild($dom({name: "tr", children: [
+						{name: "td", class: "attr-key", children: k},
+						{name: "td", class: "attr-value", children: v},
 					]}))
 				})
 
@@ -220,20 +203,20 @@ class Node {
 	}
 
 	// There might be a bug here with holding dom elements that are removed
-	set children(newValue) {
-		if (this._dom_object) {
-			let children_container = this._dom_object.querySelector(".node-children")
-			// let oldChildren = Array.from(children_container.children)
+	// set children(newValue) {
+	// 	if (this._dom_object) {
+	// 		let children_container = this._dom_object.querySelector(".node-children")
+	// 		// let oldChildren = Array.from(children_container.children)
 
-			children_container.textContent = "" // Delete children
-			newValue.forEach(e => {
-				children_container.appendChild(e)
-			})
-		}
-		else {
-			this._children = newValue
-		}
-	}
+	// 		children_container.textContent = "" // Delete children
+	// 		newValue.forEach(e => {
+	// 			children_container.appendChild(e)
+	// 		})
+	// 	}
+	// 	else {
+	// 		this._children = newValue
+	// 	}
+	// }
 
 	appendChild(newChild) {
 		if (this._dom_object) {
@@ -281,52 +264,97 @@ class Node {
 		let node_classes = []
 		if (this.children.length == 0) {node_classes.push("no-children")}
 
+		// let action_buttons = [
+		// 	{name: "button", "data-action": "hide-self", innerText: "Hide"},
+		// 	{name: "button", "data-action": "hide-siblings", innerText: "Hide Siblings"},
+		// 	{name: "button", "data-action": "hide-children", innerText: "Hide Children"},
+		// 	{name: "button", "data-action": "show-siblings", innerText: "Show Siblings"},
+		// 	{name: "button", "data-action": "show-children", innerText: "Show Children"},
+		// ]
 		let action_buttons = [
-			{name: "button", "data-action": "hide-self", innerText: "Hide"},
-			{name: "button", "data-action": "hide-siblings", innerText: "Hide Siblings"},
-			{name: "button", "data-action": "hide-children", innerText: "Hide Children"},
-			{name: "button", "data-action": "show-siblings", innerText: "Show Siblings"},
-			{name: "button", "data-action": "show-children", innerText: "Show Children"},
+			{name: "button", "data-action": "hide-self", children: "Hide"},
+			{name: "button", "data-action": "hide-siblings", children: "Hide Siblings"},
+			{name: "button", "data-action": "hide-children", children: "Hide Children"},
+			{name: "button", "data-action": "show-siblings", children: "Show Siblings"},
+			{name: "button", "data-action": "show-children", children: "Show Children"},
 		]
 
-		let node = createHtmlStructure({name: "div", classes: ["node", ...node_classes], children: [
-			{name: "div", classes: ["node-head", ...status_classes], children: [
+		// let node = createHtmlStructure({name: "div", classes: ["node", ...node_classes], children: [
+		// 	{name: "div", classes: ["node-head", ...status_classes], children: [
+		// 		{name: "div", id: "title", children: [
+		// 			{name: "button", classes: ["edit-button", "material-icons", "icon-button"], innerText: "edit"},
+		// 			{name: "span", id: "title-type", innerText: this.type},
+		// 			{name: "span", id: "title-name", innerText: this.name},
+		// 			{name: "div", classes: ["dropdown"], children: [
+		// 				{name: "button", id: "filter-button", classes: ["material-icons", "icon-button"], innerText: "visibility"},
+		// 				{name: "div", children: action_buttons}
+		// 			]}
+		// 		]},
+		// 		{name: "div", classes: ["no-attributes-label"], innerText: "No Attributes"},
+		// 		{name: "details", classes: ["attributes"], children: [
+		// 			{name: "summary", innerText: "Attributes"},
+		// 			{name: "div", classes: ["attribute-container"], children: [
+		// 				{name: "table", id: "attributes-table", children: attribute_list},
+		// 				{name: "button", id: "add-attr-button", classes: ["edit-button", "icon-button", "material-icons"], innerText: "add"}
+		// 			]},
+		// 		]},
+		// 		{name: "div", classes: ["no-value-label"], innerText: "No Value"},
+		// 		{name: "div", id: "value", children: [
+		// 			{name: "button", classes: ["edit-button", "material-icons", "icon-button"], innerText: "edit"},
+		// 			{name: "span", classes: ["value-label"], innerText: 'Value:'},
+		// 			{name: "span", id: "value-name", innerText: this.value ?? ""}
+		// 		]},
+		// 		{name: "div", id: "tags", children: [
+		// 			{name: "button", id: "add-tag-button", classes: [
+		// 				"node-tag", "edit-button", "material-icons", "icon-button"],
+		// 				innerText: "add"
+		// 			},
+		// 			...tag_list
+		// 		]}
+		// 	]},
+		// 	{name: "div", classes: ["node-children"]},
+		// ]})
+		// let child_container = node.querySelector(".node-children")
+
+		let child_container = {}
+		let node = $dom({name: "div", class: ["node", ...node_classes], children: [
+			{name: "div", class: ["node-head", ...status_classes], children: [
 				{name: "div", id: "title", children: [
-					{name: "button", classes: ["edit-button", "material-icons", "icon-button"], innerText: "edit"},
-					{name: "span", id: "title-type", innerText: this.type},
-					{name: "span", id: "title-name", innerText: this.name},
-					{name: "div", classes: ["dropdown"], children: [
-						{name: "button", id: "filter-button", classes: ["material-icons", "icon-button"], innerText: "visibility"},
+					{name: "button", class: ["edit-button", "material-icons", "icon-button"], children: "edit"},
+					{name: "span", id: "title-type", children: this.type},
+					{name: "span", id: "title-name", children: this.name},
+					{name: "div", class: "dropdown", children: [
+						{name: "button", id: "filter-button", class: ["material-icons", "icon-button"], children: "visibility"},
 						{name: "div", children: action_buttons}
 					]}
 				]},
-				{name: "div", classes: ["no-attributes-label"], innerText: "No Attributes"},
-				{name: "details", classes: ["attributes"], children: [
-					{name: "summary", innerText: "Attributes"},
-					{name: "div", classes: ["attribute-container"], children: [
+				{name: "div", class: "no-attributes-label", children: "No Attributes"},
+				{name: "details", class: "attributes", children: [
+					{name: "summary", children: "Attributes"},
+					{name: "div", class: "attribute-container", children: [
 						{name: "table", id: "attributes-table", children: attribute_list},
-						{name: "button", id: "add-attr-button", classes: ["edit-button", "icon-button", "material-icons"], innerText: "add"}
+						{name: "button", id: "add-attr-button", class: ["edit-button", "icon-button", "material-icons"], children: "add"}
 					]},
 				]},
-				{name: "div", classes: ["no-value-label"], innerText: "No Value"},
+				{name: "div", class: "no-value-label", children: "No Value"},
 				{name: "div", id: "value", children: [
-					{name: "button", classes: ["edit-button", "material-icons", "icon-button"], innerText: "edit"},
-					{name: "span", classes: ["value-label"], innerText: 'Value:'},
-					{name: "span", id: "value-name", innerText: this.value ?? ""}
+					{name: "button", class: ["edit-button", "material-icons", "icon-button"], children: "edit"},
+					{name: "span", class: "value-label", children: 'Value:'},
+					{name: "span", id: "value-name", children: this.value ?? ""}
 				]},
 				{name: "div", id: "tags", children: [
-					{name: "button", id: "add-tag-button", classes: [
+					{name: "button", id: "add-tag-button", class: [
 						"node-tag", "edit-button", "material-icons", "icon-button"],
-						innerText: "add"
+						children: "add"
 					},
 					...tag_list
 				]}
 			]},
-			{name: "div", classes: ["node-children"]},
+			{name: "div", class: "node-children", capture: child_container},
 		]})
 
-		let child_container = node.querySelector(".node-children")
-		children_list.forEach(e => child_container.appendChild(e))
+
+		children_list.forEach(e => child_container.element.appendChild(e))
 
 		return node
 	}
@@ -488,29 +516,50 @@ class Node {
 			val_type = ["attr-value-bool"]
 		}
 
+		// return {name: "tr", children: [
+		// 	{name: "td", classes: ["edit-button"], children: [
+		// 		{
+		// 			name: "button",
+		// 			classes: ["icon-button", "material-icons"],
+		// 			innerText: "close",
+		// 			events: { onclick: Node.ondeleteattribute }
+		// 		}
+		// 	]},
+		// 	{name: "td", classes: ["attr-key"], innerText: name},
+		// 	{name: "td", classes: ["attr-value", ...val_type], innerText: String(value)},
+		// ]}
 		return {name: "tr", children: [
-			{name: "td", classes: ["edit-button"], children: [
+			{name: "td", class: "edit-button", children: [
 				{
 					name: "button",
-					classes: ["icon-button", "material-icons"],
-					innerText: "close",
+					class: ["icon-button", "material-icons"],
+					children: "close",
 					events: { onclick: Node.ondeleteattribute }
 				}
 			]},
-			{name: "td", classes: ["attr-key"], innerText: name},
-			{name: "td", classes: ["attr-value", ...val_type], innerText: String(value)},
+			{name: "td", class: "attr-key", children: name},
+			{name: "td", class: ["attr-value", ...val_type], children: String(value)},
 		]}
 	}
 
 	static createTagStructure(name) {
-		return {name: "span", classes: ["node-tag"], children: [
+		// return {name: "span", classes: ["node-tag"], children: [
+		// 	{
+		// 		name: "button",
+		// 		classes: ["edit-button", "material-icons", "icon-button"],
+		// 		innerText: "close",
+		// 		events: { onclick: Node.ondeletetag }
+		// 	},
+		// 	{name: "span", innerText: name}
+		// ]}
+		return {name: "span", class: "node-tag", children: [
 			{
 				name: "button",
-				classes: ["edit-button", "material-icons", "icon-button"],
-				innerText: "close",
+				class: ["edit-button", "material-icons", "icon-button"],
+				children: "close",
 				events: { onclick: Node.ondeletetag }
 			},
-			{name: "span", innerText: name}
+			{name: "span", children: name}
 		]}
 	}
 

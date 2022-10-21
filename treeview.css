@@ -867,3 +867,7 @@ td.attr-value.attr-value-bool {
 #value .edit-button {
 	align-self: center;
 }
+
+#download-link {
+	display: none;
+}
