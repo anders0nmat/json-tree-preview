@@ -143,7 +143,7 @@ class Node {
 			if (this._dom_object) {
 				let tags_container = this._head.querySelector("#tags")
 				
-				tags_container.appendChild(createHtmlStructure(Node.createTagStructure(name)))
+				tags_container.appendChild($dom(Node.createTagStructure(name)))
 	
 				this.updateDom()
 			}
@@ -155,7 +155,7 @@ class Node {
 			if (this._dom_object) {
 				let table = this._head.querySelector("#attributes-table")
 				
-				table.appendChild(createHtmlStructure(Node.createAttributeStructure(name, value)))
+				table.appendChild($dom(Node.createAttributeStructure(name, value)))
 
 				this.updateDom()
 			}
