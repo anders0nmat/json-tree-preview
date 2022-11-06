@@ -549,7 +549,7 @@ function drop_handler(ev) {
 
 	let files = [...ev.dataTransfer.items].filter(e => e.kind == "file").map(e => e.getAsFile())
 
-	if (!files || files.lenght == 0) {return}
+	if (!files || files.length == 0) {return}
 
 	let file = files.find(e => Node.supportedTypes.has(e.type))
 
@@ -617,21 +617,42 @@ document.getElementById("save-to-file").onclick = _ => {
 
 	let data = ""
 
+	let errors = []
+
 	if (file_type == "xml") {
 		let serializer = new XMLSerializer()
 		let {object: tree, conflicts} = node.toTree()
 		data = serializer.serializeToString(tree)
-		if (conflicts.length != 0) {
-			alert("errors occured!")
-		}
+		errors = conflicts
 	}
 	else if (file_type == "json") {
 		let {object, conflicts} = node.toObject()
 		data = JSON.stringify(object)
-		if (conflicts.length != 0) {
-			alert("errors occured!")
-		}
+		errors = conflicts
 	}
+
+	let error_list = document.getElementById("error-box")
+	error_list.textContent = "" // Delete children
+	error_list.append($dom({name:"span", children: "Export Conflicts"}))
+	error_list.append($dom({name:"a", href: "#", children: "Clear marking"}))
+
+	errors.forEach((e, index) => {
+		let error_tag = `error${index}`
+
+		error_list.appendChild($dom.span({class: "error-message", children: [
+			{name: "span", class: "error", children: e.error},
+			" for ",
+			{name: "a", href: `#${error_tag}`, children: e.for}
+		]}))
+
+		e.at._dom_object.id = error_tag
+	})
+
+	error_list.classList.toggle("hidden", errors.length == 0)
+
+	// if (errors.length != 0) {
+	// 	error_list.append($dom({name:"a", href: "#", children: "Clear marking"}))
+	// }
 
 	save_file(data, type, "tree." + file_type)
 }

@@ -668,7 +668,7 @@ class Node {
 
 			if (this.type == Node.TreeNodeType.unnamedArray) {
 				let index = Number(key)
-				if (index == NaN) {
+				if (isNaN(index)) {
 					result.conflicts.push({at: this, error: "non-index attribute", for: key})
 				}
 				else {
@@ -694,7 +694,7 @@ class Node {
 		this.tags.forEach((key) => {
 			if (this.type == Node.TreeNodeType.unnamedArray) {
 				let index = Number(key)
-				if (index == NaN) {
+				if (isNaN(index)) {
 					result.conflicts.push({at: this, error: "non-index tag", for: key})
 				}
 				else {
@@ -724,7 +724,7 @@ class Node {
 		this.children.forEach(e => {
 			if (this.type == Node.TreeNodeType.unnamedArray) {
 				let index = Number(e.name)
-				if (index == NaN) {
+				if (isNaN(index)) {
 					result.conflicts.push({at: this, error: "non-index child", for: e.name})
 				}
 				else {
@@ -735,7 +735,7 @@ class Node {
 					else {
 						let {object: child, conflicts} = e.toObject() 
 						object[index] = child
-						result.conflicts.concat(conflicts)
+						result.conflicts = result.conflicts.concat(conflicts)
 					}
 				}
 			}
@@ -746,7 +746,7 @@ class Node {
 				else {
 					let {object: child, conflicts} = e.toObject() 
 					object[e.name] = child
-					result.conflicts.concat(conflicts)
+					result.conflicts = result.conflicts.concat(conflicts)
 				}
 			}
 		})
@@ -784,7 +784,7 @@ class Node {
 
 		this.children.forEach(e => {
 			let {_, conflicts} = e.toTree(tree, node) 
-			result.conflicts.concat(conflicts)			
+			result.conflicts = result.conflicts.concat(conflicts)			
 		})
 
 		if (this.value) {

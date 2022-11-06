@@ -18,7 +18,12 @@
 	--border-node-items: thin solid rgba(128, 128, 128, 0.1);
 	--border-attr: thin solid rgba(128, 128, 128, 0.1);
 	--border-attr-keyvalue: none;
-	--border-tags: thin solid rgba(128, 128, 128, 0.3);
+	/* --border-tags: thin solid rgba(128, 128, 128, 0.3); */
+
+	--border-tags: thin solid;
+	--tag-color: 0, 0%;
+	--shade-border-tags: 50%, 0.3;
+	--shade-bg-tags: 30%, 0.05;
 
 	--border-textfield-focus: thin solid rgb(34, 104, 255);
 
@@ -37,7 +42,7 @@
 	
 	--col-bg-node: rgb(248, 248, 248);
 	--col-bg-attr: rgb(240, 240, 240);
-	--col-bg-tags: rgba(0, 0, 0, 0.05);
+	/* --col-bg-tags: rgba(0, 0, 0, 0.05); */
 
 	--col-bg-drag-drop: rgb(0, 0, 0, 0.7);
 	
@@ -73,7 +78,15 @@
 		--border-node-items: thin solid rgba(128, 128, 128, 0.2);
 		--border-attr: thin solid rgba(128, 128, 128, 0.25);
 		--border-attr-keyvalue: none;
-		--border-tags: thin solid rgba(128, 128, 128, 0.5);
+
+		--border-tags: thin solid;
+		--tag-color: 0, 0%;
+		--shade-border-tags: 50%, 0.5;
+		--shade-bg-tags: 15%, 0.15;
+		/* border: --border-tags hsla(--tag-color, --shade-border-tags) */
+		/* border: thin solid hsla(0, 0%, 50%, 0.5)*/
+		
+		--border-node-highlight: thin solid rgb(34, 104, 255);
 
 		--border-textfield-focus: thin solid rgb(34, 104, 255);
 
@@ -92,7 +105,7 @@
 		
 		--col-bg-node: rgb(48, 48, 48);
 		--col-bg-attr: rgb(40, 40, 40);
-		--col-bg-tags: rgba(0, 0, 0, 0.15);
+		/* --col-bg-tags: hsla(var(--tag-color, 0, 0%), 0%, 0.15); */
 
 		--col-bg-drag-drop: rgb(0, 0, 0, 0.5);
 		
@@ -128,7 +141,12 @@ body[theme="dark"] {
 		--border-node-items: thin solid rgba(128, 128, 128, 0.2);
 		--border-attr: thin solid rgba(128, 128, 128, 0.25);
 		--border-attr-keyvalue: none;
-		--border-tags: thin solid rgba(128, 128, 128, 0.5);
+		/* --border-tags: thin solid rgba(128, 128, 128, 0.5); */
+
+		--border-tags: thin solid;
+		--tag-color: 0, 0%;
+		--shade-border-tags: 50%, 0.5;
+		--shade-bg-tags: 15%, 0.15;
 
 		--border-textfield-focus: thin solid rgb(34, 104, 255);
 
@@ -147,7 +165,7 @@ body[theme="dark"] {
 		
 		--col-bg-node: rgb(48, 48, 48);
 		--col-bg-attr: rgb(40, 40, 40);
-		--col-bg-tags: rgba(0, 0, 0, 0.15);
+		/* --col-bg-tags: rgba(0, 0, 0, 0.15); */
 
 		--col-bg-drag-drop: rgb(0, 0, 0, 0.5);
 		
@@ -182,7 +200,12 @@ body[theme="print"] {
 	--border-node-items: thin solid rgba(128, 128, 128, 0.2);
 	--border-attr: thin solid rgba(128, 128, 128, 0.1);
 	--border-attr-keyvalue: none;
-	--border-tags: thin solid rgba(128, 128, 128, 0.3);
+	/* --border-tags: thin solid rgba(128, 128, 128, 0.3); */
+
+	--border-tags: thin solid;
+	--tag-color: 0, 0%;
+	--shade-border-tags: 50%, 0.3;
+	--shade-bg-tags: 30%, 0.15;
 
 	--border-textfield-focus: thin solid rgb(34, 104, 255);
 
@@ -201,7 +224,7 @@ body[theme="print"] {
 	
 	--col-bg-node: rgb(255, 255, 255);
 	--col-bg-attr: rgb(240, 240, 240);
-	--col-bg-tags: rgba(0, 0, 0, 0.05);
+	/* --col-bg-tags: rgba(0, 0, 0, 0.05); */
 
 	--col-bg-drag-drop: rgb(0, 0, 0, 0.7);
 	
@@ -254,6 +277,38 @@ body {
 	text-align: center;
 
 	border-radius: 1em;
+}
+
+/* ----- Dialogs ----- */
+
+.dialog {
+	position: fixed;
+	inset: 0;
+	z-index: 15;
+
+	padding: 2rem;
+
+	display: grid;
+	place-content: center;
+
+	background-color: var(--col-bg-drag-drop);
+
+}
+
+.dialog-window {
+	background-color: var(--col-bg-settings);
+	border-radius: 0.5rem;
+	max-width: 120ch;
+	overflow: hidden;
+}
+
+.dialog-content {
+	padding: 1rem 2rem;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: var(--col-scroll-settings) var(--col-bg-settings);
+	overflow: hidden auto;
+	height: 100%;
 }
 
 /* ----- Drag and drop overlay ----- */
@@ -457,6 +512,69 @@ label {
 	color: var(--col-text);
 }
 
+/* ----- Export errors ----- */
+
+#error-box {
+	max-height: 10em;
+	overflow: auto;
+	scrollbar-width: thin;
+	background-color: var(--col-bg-attr);
+	display: flex;
+	flex-flow: column nowrap;
+	margin-top: 1em;
+
+	border-radius: 0.5em;
+}
+
+#error-box.hidden {
+	display: none;
+}
+
+.error-message {
+	display: inline-block;
+	flex-flow: row nowrap;
+	color: var(--col-text-missing-value);
+}
+
+.error-message > .error {
+	color: var(--col-text);
+}
+
+.error-message > a,
+.error-message > a:visited {
+	color: rgb(69, 148, 250);
+	text-decoration: none;
+}
+
+.error-message > a:hover {
+	color: rgb(40, 133, 255);
+	text-decoration: underline;
+}
+
+#error-box > * {
+	padding: 0.5em 1em;
+	order: 1
+}
+
+#error-box > span:not(.error-message) {
+	font-size: 0.8rem;
+	text-align: center;
+	font-weight: 600;
+}
+
+#error-box > a,
+#error-box > a:visited {
+	text-align: center;
+	color: rgb(69, 148, 250);
+	text-decoration: none;
+	order: 2;
+}
+
+#error-box > a:hover {
+	color: rgb(40, 133, 255);
+	text-decoration: underline;
+}
+
 /* ----- Node Placeholder Text ----- */
 
 .node-placeholder {
@@ -477,6 +595,10 @@ label {
 	display: flex;
 	flex-flow: column nowrap;
 	align-items: center;
+}
+
+.node:target > .node-head {
+	outline: var(--border-node-highlight);
 }
 
 #container.horizontal .node {
@@ -636,7 +758,6 @@ label {
 
 #attributes-table td {
 	max-width: 20ch;
-	line-break: anywhere;
 
 	padding-block: 0.25em;
 }
@@ -695,8 +816,8 @@ td.attr-value.attr-value-bool {
 
 	color: var(--col-text-tags);
 
-	background-color: var(--col-bg-tags);
-	border: var(--border-tags);
+	background-color: hsla(var(--tag-color), var(--shade-bg-tags));
+	border: var(--border-tags) hsla(var(--tag-color), var(--shade-border-tags));
 
 	border-radius: 2em;
 }
