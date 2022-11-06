@@ -607,6 +607,116 @@ Node.ondeleteattribute = ev => {
 	node.updateDom()
 }
 
+Node.oneditattribute = ev => {
+	if (!container.classList.contains("edit-enable")) { return }
+
+	let entry = ev.target.closest("tr")
+
+	let key = entry.querySelector(".attr-key")
+	let value = entry.querySelector(".attr-value")
+
+	let keyContent = key.textContent
+	let valueContent = value.textContent
+
+	let valueField = $dom({name: "input", type: "text", value: valueContent, class: "attr-text-field",
+		events: {
+			onblur: ev => {
+				// Focus was given to key, do nothing
+				if (keyField.isSameNode(ev.relatedTarget)) {return}
+
+				// Resolve new attribute value
+				if (keyField.value == "") {
+					keyField.closest("tr").remove()
+				}
+				else {
+					key.textContent = keyField.value
+					value.textContent = valueField.value
+					value.className = "attr-value"
+				}
+			},
+
+			onkeydown: ev => {
+				if (ev.key == "Escape") {
+					key.textContent = keyContent
+					value.textContent = valueContent
+				}
+				else if (ev.code == "Enter") { valueField.blur() }
+			}
+		}})
+	
+	let keyField = $dom({name: "input", type: "text", value: keyContent, class: "attr-text-field",
+		events: {
+			onblur: ev => {
+				// Focus was given to value, do nothing
+				if (valueField.isSameNode(ev.relatedTarget)) {return}
+
+				// Resolve new attribute value
+				if (keyField.value == "") {
+					keyField.closest("tr").remove()
+				}
+				else {
+					key.textContent = keyField.value
+					value.textContent = valueField.value
+					value.className = "attr-value"
+				}
+			},
+
+			onkeydown: ev => {
+				if (ev.key == "Escape") {
+					key.textContent = keyContent
+					value.textContent = valueContent
+				}
+				else if (ev.code == "Enter") { valueField.focus() }
+			}
+		}})
+
+	key.textContent = "" // Delete children
+	value.textContent = "" // Delete children
+
+	key.appendChild(keyField)
+	value.appendChild(valueField)
+
+	if (ev.target.matches(".attr-key, .attr-value")) {
+		ev.target.firstElementChild.select()
+	}
+	else {
+		keyField.select()
+	}
+}
+
+Node.onedittag = ev => {
+	if (!container.classList.contains("edit-enable")) { return }
+
+	let tagContent = ev.target.textContent
+
+	let editTag = $dom({
+		name: "input", type: "text", value: tagContent, class: ["node-tag", "tag-text-field"],
+		events: {
+			onblur: ev => {
+				ev.target.parentElement.replaceChild(
+					$dom(Node.createTagStructure(ev.target.value)),
+					ev.target
+				)
+			},
+			onkeydown: ev => {
+				if (ev.key == "Escape") {
+					ev.target.parentElement.replaceChild(
+						$dom(Node.createTagStructure(tagContent)),
+						ev.target
+					)	
+				}
+				else if (ev.code == "Enter") {
+					ev.target.blur() // Applies tag through onblur event
+				}
+			}
+		}
+	})
+
+	let tag = ev.target.closest(".node-tag")
+	tag.parentElement.replaceChild(editTag, tag)
+	editTag.select()
+}
+
 document.getElementById("save-to-file").onclick = _ => {
 	let node = Node.fromDom(document.querySelector("#container .node"))
 

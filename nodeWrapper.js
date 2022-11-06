@@ -27,6 +27,8 @@ class Node {
 
 	static ondeleteattribute = null
 	static ondeletetag = null
+	static oneditattribute = null
+	static onedittag = null
 
 	_dom_object = null /* Always guaranteed to be null or a .node DOM object */
 
@@ -535,10 +537,16 @@ class Node {
 					class: ["icon-button", "material-icons"],
 					children: "close",
 					events: { onclick: Node.ondeleteattribute }
+				},
+				{
+					name: "button",
+					class: ["icon-button", "material-icons"],
+					children: "edit",
+					events: { onclick: Node.oneditattribute }
 				}
 			]},
-			{name: "td", class: "attr-key", children: name},
-			{name: "td", class: ["attr-value", ...val_type], children: String(value)},
+			{name: "td", class: "attr-key", children: name, events: { ondblclick: Node.oneditattribute }},
+			{name: "td", class: ["attr-value", ...val_type], children: String(value), events: { ondblclick: Node.oneditattribute }},
 		]}
 	}
 
@@ -559,7 +567,7 @@ class Node {
 				children: "close",
 				events: { onclick: Node.ondeletetag }
 			},
-			{name: "span", children: name}
+			{name: "span", children: name, events: { ondblclick: Node.onedittag }}
 		]}
 	}
 
